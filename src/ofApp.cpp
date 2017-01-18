@@ -17,7 +17,7 @@ void ofApp::setup(){
     
     // Add gates
     for (int i = 0; i < NUMBER_OF_GATES; i++){
-        gates.push_back(Gate(ofVec2f((25*i)+20, ofGetHeight()-100),&users,&world));
+        gates.push_back(Gate(ofVec2f((20.0*i)+20, ofGetHeight()-100),&users,&world));
     }
     
     // Add pointers to neighbours
@@ -44,7 +44,13 @@ void ofApp::update(){
     world->update();
     
     // Delete dead users
-    
+    vector<User>::iterator it = users.begin();
+    while(it != users.end()) {
+        if((*it).hasTravelledForTooLongNow()) {
+            it = users.erase(it);
+        }
+        else ++it;
+    }
 }
 
 //--------------------------------------------------------------
@@ -56,6 +62,12 @@ void ofApp::draw(){
     for(auto& g : gates){
         g.draw();
     }
+    
+    std::string info;
+    info+="no. of users:\n";
+    info+=ofToString(users.size());
+    ofSetColor(ofColor::darkRed);
+    ofDrawBitmapString(info, 10, 10);
 }
 
 //--------------------------------------------------------------

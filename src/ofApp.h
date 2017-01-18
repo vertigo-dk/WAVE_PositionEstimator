@@ -13,6 +13,8 @@ public:
         this->particle->addVelocity(velocity);
         this->particle->setRadius(3);
         this->particle->disableCollision();
+        
+        this->startPosition = position;
     }
     
     void draw(){
@@ -23,7 +25,14 @@ public:
         ofDrawBitmapString(info, particle->getPosition());
     }
     
+    bool hasTravelledForTooLongNow(){
+        float dist = startPosition.distance(this->particle->getPosition());
+        return dist > maxDist;
+    }
+    
     Particle2D_ptr particle;
+    ofVec2f startPosition;
+    float maxDist = 30;
     
 };
 
@@ -45,7 +54,6 @@ public:
             color = ofColor::darkRed;
         }else{
             color = ofColor::darkGray;
-
         }
         
         ofSetColor(color);
@@ -55,24 +63,18 @@ public:
     
     
     void activate(){
-        // check if neighbours have been activated recently
-        // if true:
+        lastActivationTime = ofGetElapsedTimef();
+        
         for(auto& n : neighbours){
             if(n->isActivated()){
-                ////create particle and add velociyu
-                cout << n->position.x+this->position.x << endl;
-                User user = *new User(world,ofVec2f(this->position.x,ofGetHeight()-width/2),ofVec2f((n->position.x+this->position.x)/25,0));
+                //create particle and add velociy
+                float velocity =  std::abs(distanceToNeighbour/(n->lastActivationTime - this->lastActivationTime))/100;
+                ofVec2f velocityVector = ofVec2f((this->position.x-n->position.x)*velocity,0);
+                User user = *new User(world,this->position,velocityVector);
                 this->users->push_back(user);
                 break;
             }
         }
-        ////set flag
-        
-        lastActivationTime = ofGetElapsedTimef();
-    }
-    
-    void awaitingActivation(bool b){
-        lastActivationTime = ofGetElapsedTimef();
     }
     
     bool isActivated(){
@@ -85,6 +87,7 @@ public:
     ofColor color = ofColor::darkGray;
     float lastActivationTime = 0;
     float timingThreshold = 2.5;
+    const float distanceToNeighbour = 2.0;
     ofVec2f position;
     const float width = 100;
 };
@@ -113,8 +116,5 @@ public:
     World2D_ptr world;
     vector<User> users;
     vector<Gate> gates;
-    
-    
-    
     
 };
