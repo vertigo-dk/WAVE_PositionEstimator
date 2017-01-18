@@ -17,7 +17,24 @@ void ofApp::setup(){
     
     // Add gates
     for (int i = 0; i < NUMBER_OF_GATES; i++){
-        gates.push_back(Gate(ofVec2f((25*i)+20, ofGetHeight()-100)));
+        gates.push_back(Gate(ofVec2f((25*i)+20, ofGetHeight()-100),&users,&world));
+    }
+    
+    // Add pointers to neighbours
+    for(int i = 0; i < gates.size(); i++){
+        std::vector<Gate*> neighbours;        
+        // special cases for outer gates:
+        if(i == 0){
+            neighbours.push_back(&gates.at(1));
+        }else if(i == gates.size()-1){
+            neighbours.push_back(&gates.at(gates.size()-2));
+        }else{
+            // TWO NEIGHBOURS
+            neighbours.push_back(&gates.at(i-1));
+            neighbours.push_back(&gates.at(i+1));
+        }
+        
+        gates.at(i).addNeighbours(neighbours);
     }
 }
 
@@ -25,6 +42,8 @@ void ofApp::setup(){
 void ofApp::update(){
     // MSA update for physics simulation
     world->update();
+    
+    // Delete dead users
     
 }
 
@@ -41,8 +60,9 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    
-    
+    if(key-48 > 0 && key-48 < gates.size()){
+        gates.at(key-48).activate();
+    }
 }
 
 //--------------------------------------------------------------

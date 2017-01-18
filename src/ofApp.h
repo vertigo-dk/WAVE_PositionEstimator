@@ -7,10 +7,10 @@ using namespace msa::physics;
 
 class User{
 public:
-    User(World2D_ptr* world){
+    User(World2D_ptr* world, ofVec2f position, ofVec2f velocity){
         this->particle = (*world)->makeParticle();
-        this->particle->moveTo(ofVec2f(ofRandom(ofGetWidth()),ofRandom(ofGetHeight()-100,ofGetHeight())));
-        this->particle->addVelocity(ofVec2f(ofRandom(-8,8),0));
+        this->particle->moveTo(position);
+        this->particle->addVelocity(velocity);
         this->particle->setRadius(3);
         this->particle->disableCollision();
     }
@@ -29,16 +29,62 @@ public:
 
 class Gate{
 public:
-    Gate(ofVec2f position){
+    Gate(ofVec2f position, vector<User>* users, World2D_ptr* world){
         this->position = position;
+        this->users = users;
+        this->world = world;
     }
     
+    void addNeighbours(std::vector<Gate*> neighbours){
+        this->neighbours = neighbours;
+    }
+    
+    
     void draw(){
-        ofSetColor(ofColor::darkGray);
+        if(ofGetElapsedTimef() - lastActivationTime < timingThreshold){
+            color = ofColor::darkRed;
+        }else{
+            color = ofColor::darkGray;
+
+        }
+        
+        ofSetColor(color);
         ofSetLineWidth(3);
         ofDrawLine(position,ofVec2f(position.x,position.y+width));
     }
     
+    
+    void activate(){
+        // check if neighbours have been activated recently
+        // if true:
+        for(auto& n : neighbours){
+            if(n->isActivated()){
+                ////create particle and add velociyu
+                cout << n->position.x+this->position.x << endl;
+                User user = *new User(world,ofVec2f(this->position.x,ofGetHeight()-width/2),ofVec2f((n->position.x+this->position.x)/25,0));
+                this->users->push_back(user);
+                break;
+            }
+        }
+        ////set flag
+        
+        lastActivationTime = ofGetElapsedTimef();
+    }
+    
+    void awaitingActivation(bool b){
+        lastActivationTime = ofGetElapsedTimef();
+    }
+    
+    bool isActivated(){
+        return ofGetElapsedTimef() - lastActivationTime < timingThreshold;
+    }
+    
+    vector<Gate*> neighbours;
+    vector<User>* users;
+    World2D_ptr* world;
+    ofColor color = ofColor::darkGray;
+    float lastActivationTime = 0;
+    float timingThreshold = 2.5;
     ofVec2f position;
     const float width = 100;
 };
