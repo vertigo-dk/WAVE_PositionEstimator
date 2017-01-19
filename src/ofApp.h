@@ -18,7 +18,7 @@ public:
     }
     
     void draw(){
-        ofSetColor(ofColor::darkRed);
+        ofSetColor(ofColor::darkBlue);
         ofDrawCircle(particle->getPosition(), particle->getRadius());
         std::string info;;
         info+=ofToString(particle->getPosition());
@@ -26,8 +26,7 @@ public:
     }
     
     bool hasTravelledForTooLongNow(){
-        float dist = startPosition.distance(this->particle->getPosition());
-        return dist > maxDist;
+        return startPosition.distance(this->particle->getPosition()) > maxDist;
     }
     
     Particle2D_ptr particle;
@@ -38,10 +37,11 @@ public:
 
 class Gate{
 public:
-    Gate(ofVec2f position, vector<User>* users, World2D_ptr* world){
+    Gate(ofVec2f position, vector<User>* users, World2D_ptr* world, ofParameter<float>* timingThreshold){
         this->position = position;
         this->users = users;
         this->world = world;
+        this->timingThreshold = timingThreshold;
     }
     
     void addNeighbours(std::vector<Gate*> neighbours){
@@ -50,7 +50,7 @@ public:
     
     
     void draw(){
-        if(ofGetElapsedTimef() - lastActivationTime < timingThreshold){
+        if(ofGetElapsedTimef() - lastActivationTime < *timingThreshold){
             color = ofColor::darkRed;
         }else{
             color = ofColor::darkGray;
@@ -78,7 +78,7 @@ public:
     }
     
     bool isActivated(){
-        return ofGetElapsedTimef() - lastActivationTime < timingThreshold;
+        return ofGetElapsedTimef() - lastActivationTime < *timingThreshold;
     }
     
     vector<Gate*> neighbours;
@@ -86,7 +86,7 @@ public:
     World2D_ptr* world;
     ofColor color = ofColor::darkGray;
     float lastActivationTime = 0;
-    float timingThreshold = 2.5;
+    ofParameter<float>* timingThreshold;
     const float distanceToNeighbour = 2.0;
     ofVec2f position;
     const float width = 100;
@@ -100,7 +100,8 @@ public:
     void update();
     void draw();
     
-    void gateActivated();
+    void setupGUI();
+    
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y );
@@ -119,7 +120,5 @@ public:
     
     // GUI
     ofxPanel gui;
-    ofParameter<bool> drawFloor;
-    ofParameter<bool> drawGates;
-    
+    ofParameter<float> timingThreshold;    
 };

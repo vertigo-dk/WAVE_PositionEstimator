@@ -15,11 +15,14 @@ void ofApp::setup(){
     //        users.push_back(User(&world));
     //    }
     
+    // Setup gui
+    setupGUI();
+        
     // Add gates
     for (int i = 0; i < NUMBER_OF_GATES; i++){
-        gates.push_back(Gate(ofVec2f((20.0*i)+20, ofGetHeight()-100),&users,&world));
+        gates.push_back(Gate(ofVec2f((20.0*i)+20, ofGetHeight()-100),&users,&world, &timingThreshold));
     }
-    
+        
     // Add pointers to neighbours
     for(int i = 0; i < gates.size(); i++){
         std::vector<Gate*> neighbours;        
@@ -55,6 +58,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofPushMatrix();
+    ofTranslate(gui.getWidth(), 0);
     for(auto& u : users){
         u.draw();
     }
@@ -63,11 +68,21 @@ void ofApp::draw(){
         g.draw();
     }
     
+    ofPopMatrix();
+    
     std::string info;
     info+="no. of users:\n";
     info+=ofToString(users.size());
     ofSetColor(ofColor::darkRed);
-    ofDrawBitmapString(info, 10, 10);
+    ofDrawBitmapString(info, 10, 25+gui.getHeight());
+    
+    gui.draw();
+}
+
+//--------------------------------------------------------------
+void ofApp::setupGUI(){
+    gui.setup();
+    gui.add(timingThreshold.set("timing threshold", 2.5,0.5,5.0));
 }
 
 //--------------------------------------------------------------
@@ -75,13 +90,6 @@ void ofApp::keyPressed(int key){
     if(key-48 > 0 && key-48 < gates.size()){
         gates.at(key-48).activate();
     }
-}
-
-//--------------------------------------------------------------
-void ofApp::gateActivated(){
-    // Create user at point
-    // Check neighbouring gates
-    //
 }
 
 //--------------------------------------------------------------
