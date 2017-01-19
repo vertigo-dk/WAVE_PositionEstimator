@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGUI.h"
 #include "MsaPhysics2D.h"
 
 using namespace msa::physics;
@@ -13,7 +14,6 @@ public:
         this->particle->addVelocity(velocity);
         this->particle->setRadius(3);
         this->particle->disableCollision();
-        
         this->startPosition = position;
     }
     
@@ -116,5 +116,10 @@ public:
     World2D_ptr world;
     vector<User> users;
     vector<Gate> gates;
+    
+    // GUI
+    ofxPanel gui;
+    ofParameter<bool> drawFloor;
+    ofParameter<bool> drawGates;
     
 };
