@@ -20,7 +20,7 @@ public:
     void draw(){
         ofSetColor(ofColor::darkBlue);
         ofDrawCircle(particle->getPosition(), particle->getRadius());
-        std::string info;;
+        std::string info;
         info+=ofToString(particle->getPosition());
         ofDrawBitmapString(info, particle->getPosition());
     }
@@ -70,7 +70,7 @@ public:
                 //create particle and add velociy
                 float velocity =  std::abs(distanceToNeighbour/(n->lastActivationTime - this->lastActivationTime))/100;
                 ofVec2f velocityVector = ofVec2f((this->position.x-n->position.x)*velocity,0);
-                User user = *new User(world,this->position,velocityVector);
+                User user = User(world,this->position,velocityVector);
                 this->users->push_back(user);
                 break;
             }
